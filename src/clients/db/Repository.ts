@@ -5,15 +5,6 @@ import { schema } from '../../config/pouchdb'
 import AbstractDBModel from '../../model/AbstractDBModel'
 import SortRequest, { Unsorted } from './SortRequest'
 
-function mapDocument(document: any): any {
-  const { _id, _rev, ...values } = document
-  return {
-    id: _id,
-    rev: _rev,
-    ...values,
-  }
-}
-
 export default class Repository<T extends AbstractDBModel> {
   db: PouchDB.RelDatabase
 
@@ -150,7 +141,7 @@ export default class Repository<T extends AbstractDBModel> {
 
     const { id, rev, ...valuesToSave } = entity
     const savedEntity = await this.db.rel.save(this.type, {
-      _id: uuidv4(),
+      id: uuidv4(),
       ...valuesToSave,
       createdAt: currentTime,
       updatedAt: currentTime,
@@ -182,7 +173,8 @@ export default class Repository<T extends AbstractDBModel> {
   }
 
   async delete(entity: T): Promise<T> {
-    const e = entity as any
-    return mapDocument(this.db.remove(e.id, e.rev))
+    const entityToDelete = await this.find(entity.id)
+    await this.db.rel.del(this.type, entity)
+    return entityToDelete
   }
 }
