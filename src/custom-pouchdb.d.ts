@@ -48,3 +48,5 @@ declare module 'pouchdb-quick-search' {
   const plugin: PouchDB.Plugin
   export = plugin
 }
+
+declare module 'relational-pouch'
